@@ -11,7 +11,6 @@ def run_tcp_server():
     server_socket.listen(1)
     print(f"[TCP SERVER] Listening for connections on {host}:{port}...")
 
-
     try:
         while True:
             conn, client_address = server_socket.accept()

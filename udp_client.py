@@ -1,42 +1,36 @@
 import socket
 
-def run_udp_server():
-    host = '127.0.0.1'      # is voor de Localhost
-    port = 12345        # is voor de Poortnummer
+def run_udp_client():
+    server_host = '127.0.0.1'
+    server_port = 12345
+    server_address = (server_host, server_port)
 
-    # Maakt een UDP socket aan
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # Maak client UDP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    client_socket.settimeout(5.0)       # geef timout 
 
-    
-    # zoda de socket aan de host en poort gecoonnect
-
-    server_socket.bind((host, port))
-    print(f"[SERVER] UDP Server listening on {host}:{port}...")
+    print("[CLIENT] UDP Client ready. Type 'exit' to stop.")
 
     try:
         while True:
-            data, client_address = server_socket.recvfrom(1024)
-            message = data.decode('utf-8')
-            print(f"[SERVER] Received from {client_address}: '{message}'")
+            message = input("\nGive a whole number (or type 'exit'): ")
+            if message.lower() == 'exit':
+                break
+
+            client_socket.sendto(message.encode('utf-8'), server_address)
 
 
             try:
-                number = int(message)
-                if number % 2 == 0:
-                    response = f" {number} is EVEN."
-                else:
-                    response = f" {number} is ODD."
-            except ValueError:
-                response = "Invalid input: Only whole numbers allowed."
+                data, _ = client_socket.recvfrom(1024)
+                print(f"[CLIENT] answer from server is: {data.decode('utf-8')}")
+            except socket.timeout:
+                print("[CLIENT ERROR] No response from server (Timeout).")
 
-            server_socket.sendto(response.encode('utf-8'), client_address)
-            print(f"[SERVER] Answer to {client_address}: {response}")
-
-    except KeyboardInterrupt:
-        print("\n[SERVER] Server stopped...")
+    except Exception as e:
+        print(f"[CLIENT ERROR] {e}")
     finally:
-        server_socket.close()
-        print("[SERVER] Socket closed.")
+        client_socket.close()
+        print("[CLIENT] Socket gesloten.")
 
 if __name__ == '__main__':
-    run_udp_server()
+    run_udp_client()
